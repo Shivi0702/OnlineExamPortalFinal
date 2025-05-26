@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineExamPortalFinal.Models;
 
+
 namespace OnlineExamPortalFinal.Data
 {
     public class ApplicationDbContext : DbContext
@@ -61,7 +62,7 @@ namespace OnlineExamPortalFinal.Data
                 UserId = 1,
                 Name = "Admin",
                 Email = "admin@examportal.com",
-                PasswordHash = "Admin@123", // ⚠️ Plain password (for dev only)
+                PasswordHash = "$2a$11$h6zWmyEYcHZLWynqVnjcqO3bJMOXM7N5MuxqLGgIl1qzMzP4zhRUC", 
                 Role = "Admin"
             });
         }

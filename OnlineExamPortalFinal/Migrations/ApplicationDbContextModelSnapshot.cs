@@ -196,7 +196,7 @@ namespace OnlineExamPortalFinal.Migrations
                             UserId = 1,
                             Email = "admin@examportal.com",
                             Name = "Admin",
-                            PasswordHash = "Admin@123",
+                            PasswordHash = "$2a$11$h6zWmyEYcHZLWynqVnjcqO3bJMOXM7N5MuxqLGgIl1qzMzP4zhRUC",
                             Role = "Admin"
                         });
                 });

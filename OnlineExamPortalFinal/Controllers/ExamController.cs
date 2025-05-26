@@ -6,7 +6,7 @@ using OnlineExamPortalFinal.Models;
 
 namespace OnlineExamPortal.Controllers
 {
-    [Authorize(Roles = "Teacher")]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ExamController : ControllerBase
@@ -20,6 +20,7 @@ namespace OnlineExamPortal.Controllers
 
         // POST: api/exam
         [HttpPost]
+        [Authorize(Roles = "Teacher")]
         public IActionResult CreateExam(CreateExamDto dto)
         {
             var exam = new Exam
@@ -38,6 +39,7 @@ namespace OnlineExamPortal.Controllers
 
         // GET: api/exam
         [HttpGet]
+        [Authorize(Roles = "Teacher, Student, Admin")]
         public IActionResult GetAllExams()
         {
             var exams = _context.Exams.Select(e => new ExamDetailDto
@@ -54,6 +56,7 @@ namespace OnlineExamPortal.Controllers
 
         // GET: api/exam/{id}
         [HttpGet("{id}")]
+        [Authorize(Roles = "Teacher, Student, Admin")]
         public IActionResult GetExam(int id)
         {
             var exam = _context.Exams.Find(id);
@@ -74,6 +77,7 @@ namespace OnlineExamPortal.Controllers
 
         // PUT: api/exam/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Teacher")]
         public IActionResult UpdateExam(int id, CreateExamDto dto)
         {
             var exam = _context.Exams.Find(id);
@@ -91,6 +95,7 @@ namespace OnlineExamPortal.Controllers
 
         // DELETE: api/exam/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Teacher")]
         public IActionResult DeleteExam(int id)
         {
             var exam = _context.Exams.Find(id);

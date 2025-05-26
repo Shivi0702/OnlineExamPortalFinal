@@ -134,7 +134,7 @@ namespace OnlineExamPortalFinal.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "Email", "Name", "PasswordHash", "Role" },
-                values: new object[] { 1, "admin@examportal.com", "Admin", "Admin@123", "Admin" });
+                values: new object[] { 1, "admin@examportal.com", "Admin", "$2a$11$h6zWmyEYcHZLWynqVnjcqO3bJMOXM7N5MuxqLGgIl1qzMzP4zhRUC", "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_ExamId",
