@@ -1,26 +1,34 @@
-using OnlineExamPortalFinal.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OnlineExamPortalFinal.Data;
 using System.Text;
-using Microsoft.OpenApi.Models;
-
-using Microsoft.OpenApi.Models;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+    policy => policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+
+});
+
+// Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Swagger-bearer
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 
+
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "YourAPI", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExamPortal", Version = "v1" });
 
     // Enable JWT token input in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -49,7 +57,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
+//JWT Token
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -69,11 +77,12 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors("AllowAllOrigins");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

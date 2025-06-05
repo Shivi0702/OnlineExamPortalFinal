@@ -18,7 +18,6 @@ namespace OnlineExamPortal.Controllers
             _context = context;
         }
 
-        // GET: api/report/my
         [HttpGet("my")]
         [Authorize(Roles = "Student")]
         public IActionResult GetMyReports()
@@ -41,7 +40,6 @@ namespace OnlineExamPortal.Controllers
             return Ok(reports);
         }
 
-        // GET: api/report/exam/{examId}
         [HttpGet("exam/{examId}")]
         [Authorize(Roles = "Teacher,Admin")]
         public IActionResult GetReportsByExam(int examId)
@@ -63,7 +61,6 @@ namespace OnlineExamPortal.Controllers
             return Ok(reports);
         }
 
-        // GET: api/report/all
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllReports()

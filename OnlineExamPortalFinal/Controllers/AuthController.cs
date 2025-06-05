@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
         _context.Users.Add(user);
         _context.SaveChanges();
 
-        return Ok("Registered successfully.");
+        return Ok(new { Message="Registered successfully." });
     }
 
     [HttpPost("login")]
@@ -70,7 +70,7 @@ public class AuthController : ControllerBase
         _context.Users.Add(teacher);
         _context.SaveChanges();
 
-        return Ok("Teacher created successfully.");
+        return Ok(new { message = "Teacher created successfully." });
     }
 
     private string GenerateJwtToken(User user)

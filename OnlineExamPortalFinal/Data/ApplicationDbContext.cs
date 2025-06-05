@@ -19,7 +19,7 @@ namespace OnlineExamPortalFinal.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Enforce unique email
+            // unique email
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -56,7 +56,7 @@ namespace OnlineExamPortalFinal.Data
                 .HasForeignKey(r => r.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Seed admin user (plain password – for testing only)
+            // Seed admin user
             modelBuilder.Entity<User>().HasData(new User
             {
                 UserId = 1,

@@ -18,7 +18,7 @@ namespace OnlineExamPortal.Controllers
             _context = context;
         }
 
-        // POST: api/exam
+
         [HttpPost]
         [Authorize(Roles = "Teacher")]
         public IActionResult CreateExam(CreateExamDto dto)
@@ -33,11 +33,10 @@ namespace OnlineExamPortal.Controllers
 
             _context.Exams.Add(exam);
             _context.SaveChanges();
-
+            
             return Ok(new { message = "Exam created successfully", exam.ExamId });
         }
 
-        // GET: api/exam
         [HttpGet]
         [Authorize(Roles = "Teacher, Student, Admin")]
         public IActionResult GetAllExams()
@@ -54,7 +53,6 @@ namespace OnlineExamPortal.Controllers
             return Ok(exams);
         }
 
-        // GET: api/exam/{id}
         [HttpGet("{id}")]
         [Authorize(Roles = "Teacher, Student, Admin")]
         public IActionResult GetExam(int id)
@@ -75,7 +73,6 @@ namespace OnlineExamPortal.Controllers
             return Ok(dto);
         }
 
-        // PUT: api/exam/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "Teacher")]
         public IActionResult UpdateExam(int id, CreateExamDto dto)
@@ -93,7 +90,6 @@ namespace OnlineExamPortal.Controllers
             return Ok("Exam updated successfully.");
         }
 
-        // DELETE: api/exam/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Teacher")]
         public IActionResult DeleteExam(int id)

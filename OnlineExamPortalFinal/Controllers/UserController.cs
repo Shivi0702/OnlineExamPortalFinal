@@ -18,7 +18,6 @@ namespace OnlineExamPortal.Controllers
             _context = context;
         }
 
-        // GET: api/user/profile
         [HttpGet("profile")]
         public IActionResult GetProfile()
         {
@@ -38,7 +37,6 @@ namespace OnlineExamPortal.Controllers
             return Ok(dto);
         }
 
-        // PUT: api/user/profile
         [HttpPut("profile")]
         public IActionResult UpdateProfile(UpdateProfileDto dto)
         {
