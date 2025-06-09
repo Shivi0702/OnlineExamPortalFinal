@@ -12,5 +12,8 @@
 
     // Navigation Properties
         public ICollection<Response>? Responses { get; set; }
+
+    // Profile Image
+        public string? ProfileImageUrl { get; set; }
     }
 }

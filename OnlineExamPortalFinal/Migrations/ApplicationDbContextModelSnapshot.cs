@@ -21,6 +21,23 @@ namespace OnlineExamPortalFinal.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("OnlineExamPortalFinal.Models.Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("OnlineExamPortalFinal.Models.Exam", b =>
                 {
                     b.Property<int>("ExamId")
@@ -28,6 +45,9 @@ namespace OnlineExamPortalFinal.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -45,6 +65,8 @@ namespace OnlineExamPortalFinal.Migrations
 
                     b.HasKey("ExamId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Exams");
                 });
 
@@ -55,10 +77,6 @@ namespace OnlineExamPortalFinal.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CorrectAnswer")
                         .IsRequired()
@@ -179,6 +197,9 @@ namespace OnlineExamPortalFinal.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -199,6 +220,17 @@ namespace OnlineExamPortalFinal.Migrations
                             PasswordHash = "$2a$11$h6zWmyEYcHZLWynqVnjcqO3bJMOXM7N5MuxqLGgIl1qzMzP4zhRUC",
                             Role = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("OnlineExamPortalFinal.Models.Exam", b =>
+                {
+                    b.HasOne("OnlineExamPortalFinal.Models.Category", "Category")
+                        .WithMany("Exams")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("OnlineExamPortalFinal.Models.Question", b =>
@@ -256,6 +288,11 @@ namespace OnlineExamPortalFinal.Migrations
                     b.Navigation("Question");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OnlineExamPortalFinal.Models.Category", b =>
+                {
+                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("OnlineExamPortalFinal.Models.Exam", b =>
