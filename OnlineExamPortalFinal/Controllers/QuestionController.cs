@@ -5,7 +5,7 @@ using OnlineExamPortalFinal.DTOs;
 using OnlineExamPortalFinal.Models;
 namespace OnlineExamPortal.Controllers
 {
-    [Authorize(Roles = "Teacher,Student")]
+    [Authorize(Roles = "Teacher")]
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionController : ControllerBase
@@ -27,7 +27,7 @@ namespace OnlineExamPortal.Controllers
             {
                 ExamId = dto.ExamId,
                 Text = dto.Text,
-                
+                Category = dto.Category,
                 Option1 = dto.Option1,
                 Option2 = dto.Option2,
                 Option3 = dto.Option3,
@@ -50,7 +50,7 @@ namespace OnlineExamPortal.Controllers
                 {
                     QuestionId = q.QuestionId,
                     Text = q.Text,
-                    
+                    Category = q.Category,
                     Option1 = q.Option1,
                     Option2 = q.Option2,
                     Option3 = q.Option3,
@@ -68,7 +68,7 @@ namespace OnlineExamPortal.Controllers
                 return NotFound("Question not found.");
 
             question.Text = dto.Text;
-            
+            question.Category = dto.Category;
             question.Option1 = dto.Option1;
             question.Option2 = dto.Option2;
             question.Option3 = dto.Option3;

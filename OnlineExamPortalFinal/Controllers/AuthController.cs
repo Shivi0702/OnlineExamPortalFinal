@@ -24,15 +24,6 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterUserDto dto)
     {
-        if (dto.Role != "Student")
-        {
-            return Forbid("Only students can register!!");
-        }
-        var restrictedDomains = new[] { "@examportal.com", "@teacherportal.com" };
-        if (restrictedDomains.Any(domain => dto.Email.EndsWith(domain, StringComparison.OrdinalIgnoreCase)))
-        {
-            return BadRequest("Registration using Admin or Teacher email domain is not allowed. ");
-        }
         if (_context.Users.Any(u => u.Email == dto.Email))
             return BadRequest("Email already exists.");
 
@@ -89,7 +80,6 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role),
-            new Claim("name", user.Name)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

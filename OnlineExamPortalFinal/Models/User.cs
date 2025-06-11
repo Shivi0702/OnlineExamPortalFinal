@@ -8,12 +8,10 @@
         public string PasswordHash { get; set; } = string.Empty;
 
     // Role can be: "Admin", "Student", "Teacher"
-         public string Role { get; set; } = "Student";
+    public string Role { get; set; } = "Student";
 
     // Navigation Properties
         public ICollection<Response>? Responses { get; set; }
-
-    // Profile Image
-        public string? ProfileImageUrl { get; set; }
     }
 }
+   
