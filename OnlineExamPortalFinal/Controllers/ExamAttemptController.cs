@@ -18,7 +18,6 @@ namespace OnlineExamPortalFinal.Controllers
             _context = context;
         }
 
-        // GET: api/examattempt/start/{examId}
         [HttpGet("start/{examId}")]
         public IActionResult StartExam(int examId)
         {
@@ -47,7 +46,6 @@ namespace OnlineExamPortalFinal.Controllers
             });
         }
 
-        // POST: api/examattempt/submit
         [HttpPost("submit")]
         public IActionResult SubmitExam(SubmitExamDto dto)
         {
@@ -79,7 +77,6 @@ namespace OnlineExamPortalFinal.Controllers
                 _context.Responses.Add(response);
             }
 
-            // Create Report
             var report = new Report
             {
                 ExamId = dto.ExamId,

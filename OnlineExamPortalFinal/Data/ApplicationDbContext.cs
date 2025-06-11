@@ -14,6 +14,7 @@ namespace OnlineExamPortalFinal.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<Response> Responses { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,7 @@ namespace OnlineExamPortalFinal.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+            // Configure Response relationships to avoid multiple cascade paths
             modelBuilder.Entity<Response>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Responses)

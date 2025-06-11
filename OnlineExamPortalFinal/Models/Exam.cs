@@ -8,6 +8,11 @@
         public int Duration { get; set; } // in minutes
         public int TotalMarks { get; set; }
 
+        // Navigation
         public ICollection<Question>? Questions { get; set; }
+        
+        // Foreign key for Category
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }
