@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OnlineExamPortalFinal.Data;
 using OnlineExamPortalFinal.DTOs;
 using OnlineExamPortalFinal.Models;
@@ -17,7 +18,6 @@ namespace OnlineExamPortal.Controllers
         {
             _context = context;
         }
-
 
         [Authorize(Roles = "Teacher")]
         [HttpPost]
@@ -60,7 +60,8 @@ namespace OnlineExamPortal.Controllers
                 Description = dto.Description,
                 Duration = dto.Duration,
                 TotalMarks = dto.TotalMarks,
-                CategoryId = categoryIdToUse
+                CategoryId = categoryIdToUse,
+                IsActive = dto.IsActive // <-- Added
             };
 
             _context.Exams.Add(exam);
@@ -84,7 +85,8 @@ namespace OnlineExamPortal.Controllers
                             Title = e.Title,
                             Description = e.Description,
                             Duration = e.Duration,
-                            TotalMarks = e.TotalMarks
+                            TotalMarks = e.TotalMarks,
+                            IsActive = e.IsActive // <-- Added
                         }).ToList()
                 }).Where(c => c.Exams.Any())
                 .ToList();
@@ -102,7 +104,8 @@ namespace OnlineExamPortal.Controllers
                 Title = e.Title,
                 Description = e.Description,
                 Duration = e.Duration,
-                TotalMarks = e.TotalMarks
+                TotalMarks = e.TotalMarks,
+                IsActive = e.IsActive // <-- Added
             }).ToList();
 
             return Ok(exams);
@@ -122,7 +125,8 @@ namespace OnlineExamPortal.Controllers
                 Title = exam.Title,
                 Description = exam.Description,
                 Duration = exam.Duration,
-                TotalMarks = exam.TotalMarks
+                TotalMarks = exam.TotalMarks,
+                IsActive = exam.IsActive // <-- Added
             };
 
             return Ok(dto);
@@ -155,6 +159,7 @@ namespace OnlineExamPortal.Controllers
             exam.Description = dto.Description;
             exam.Duration = dto.Duration;
             exam.TotalMarks = dto.TotalMarks;
+            exam.IsActive = dto.IsActive; // <-- Added
 
             _context.SaveChanges();
             return Ok("Exam updated successfully.");
@@ -173,5 +178,53 @@ namespace OnlineExamPortal.Controllers
             return Ok("Exam deleted.");
         }
 
+        [HttpGet("{examId}/leaderboard")]
+        [Authorize(Roles = "Teacher, Student, Admin")]
+        public async Task<IActionResult> GetLeaderboard(int examId)
+        {
+            var results = await _context.Responses
+                .Where(r => r.ExamId == examId)
+                .GroupBy(r => r.UserId)
+                .Select(g => new {
+                    StudentId = g.Key,
+                    TotalScore = g.Sum(x => x.MarksObtained)
+                })
+                .OrderByDescending(x => x.TotalScore)
+                .ToListAsync();
+
+            var userIds = results.Select(r => r.StudentId).ToList();
+            var users = _context.Users
+                .Where(u => userIds.Contains(u.UserId))
+                .ToDictionary(u => u.UserId, u => u.Name);
+
+            var leaderboard = new List<LeaderboardEntryDto>();
+            int lastScore = -1;
+            int rank = 0;
+            int skip = 1;
+
+            foreach (var result in results)
+            {
+                if (result.TotalScore != lastScore)
+                {
+                    rank += skip;
+                    skip = 1;
+                }
+                else
+                {
+                    skip++;
+                }
+                lastScore = result.TotalScore;
+
+                leaderboard.Add(new LeaderboardEntryDto
+                {
+                    Rank = rank,
+                    StudentId = result.StudentId,
+                    StudentName = users.ContainsKey(result.StudentId) ? users[result.StudentId] : "Unknown",
+                    TotalScore = result.TotalScore
+                });
+            }
+
+            return Ok(leaderboard);
+        }
     }
 }

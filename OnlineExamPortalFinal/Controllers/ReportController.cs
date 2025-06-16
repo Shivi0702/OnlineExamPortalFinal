@@ -33,7 +33,8 @@ namespace OnlineExamPortal.Controllers
                     ExamId = r.ExamId,
                     ExamTitle = r.Exam.Title,
                     TotalMarks = r.TotalMarks,
-                    PerformanceMetrics = r.PerformanceMetrics
+                    PerformanceMetrics = r.PerformanceMetrics,
+                    IsPassed = r.IsPassed // <-- Make sure this is mapped!
                 })
                 .ToList();
 

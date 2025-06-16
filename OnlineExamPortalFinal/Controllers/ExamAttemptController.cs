@@ -4,6 +4,8 @@ using OnlineExamPortalFinal.Data;
 using OnlineExamPortalFinal.DTOs;
 using OnlineExamPortalFinal.Models;
 using System.Security.Claims;
+using System.Linq;
+
 namespace OnlineExamPortalFinal.Controllers
 {
     [Authorize(Roles = "Student")]
@@ -21,6 +23,13 @@ namespace OnlineExamPortalFinal.Controllers
         [HttpGet("start/{examId}")]
         public IActionResult StartExam(int examId)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            // Restrict re-attempt if already passed
+            bool alreadyPassed = _context.Reports.Any(r => r.ExamId == examId && r.UserId == userId && r.IsPassed);
+            if (alreadyPassed)
+                return BadRequest("You have already passed this exam and cannot attempt it again.");
+
             var exam = _context.Exams.Find(examId);
             if (exam == null)
                 return NotFound("Exam not found.");
@@ -51,22 +60,23 @@ namespace OnlineExamPortalFinal.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+            bool alreadyPassed = _context.Reports.Any(r => r.ExamId == dto.ExamId && r.UserId == userId && r.IsPassed);
+            if (alreadyPassed)
+                return BadRequest("You have already passed this exam and cannot attempt it again.");
+
             var exam = _context.Exams.Find(dto.ExamId);
             if (exam == null)
                 return NotFound("Exam not found.");
 
             int correctCount = 0;
-            // 🟡 New list to collect per-question feedback
-            var questionFeedback = new List<QuestionFeedbackDto>();
-
             foreach (var answer in dto.Answers)
             {
-                var question = _context.Questions.FirstOrDefault(q => q.QuestionId == answer.QuestionId);
+                var question = questions.FirstOrDefault(q => q.QuestionId == answer.QuestionId);
                 if (question == null) continue;
 
                 bool isCorrect = answer.Answer.Trim().Equals(question.CorrectAnswer.Trim(), StringComparison.OrdinalIgnoreCase);
-                int marks = isCorrect ? 1 : 0;
-                if (isCorrect) correctCount++;
+                int marks = isCorrect ? 1 : 0; // Change as per marks per question if needed
+                if (isCorrect) marksObtained++;
 
                 var response = new Response
                 {
@@ -74,25 +84,32 @@ namespace OnlineExamPortalFinal.Controllers
                     UserId = userId,
                     QuestionId = question.QuestionId,
                     Answer = answer.Answer,
-                    MarksObtained = marks
+                    MarksObtained = marks,
+                    Timestamp = DateTime.UtcNow
                 };
-
-                _context.Responses.Add(response);
-                questionFeedback.Add(new QuestionFeedbackDto
-                {
-                    QuestionText = question.Text,
-                    SelectedAnswer = answer.Answer,
-                    CorrectAnswer = question.CorrectAnswer
-                });
+                responses.Add(response);
             }
 
-            // 🟢 Add question feedback to return in result            
+            // Correct percentage calculation
+            double percentage = totalQuestions > 0 ? ((double)marksObtained / totalQuestions) * 100 : 0;
+            int passPercentage = 40; // Pass threshold
+            bool isPassed = percentage >= passPercentage;
+
+            foreach (var response in responses)
+                response.IsPassed = isPassed;
+
+                _context.Responses.Add(response);
+            }
+
             var report = new Report
             {
                 ExamId = dto.ExamId,
                 UserId = userId,
-                TotalMarks = exam.TotalMarks,
-                PerformanceMetrics = $"{correctCount}/{exam.TotalMarks}"
+                TotalMarks = totalQuestions, // Total questions attempted or possible
+                PerformanceMetrics = $"{marksObtained}/{totalQuestions}", // Only score, no percent sign
+                Percentage = Math.Round(percentage, 2), // <-- Add this column in DB/model if not present
+                IsPassed = isPassed,
+                Timestamp = DateTime.UtcNow
             };
 
             _context.Reports.Add(report);
@@ -103,8 +120,7 @@ namespace OnlineExamPortalFinal.Controllers
             {
                 TotalMarks = exam.TotalMarks,
                 MarksObtained = correctCount,
-                ResultStatus = correctCount >= exam.TotalMarks / 2 ? "Pass" : "Fail",
-                Questions = questionFeedback
+                ResultStatus = correctCount >= exam.TotalMarks / 2 ? "Pass" : "Fail"
             });
         }
     }
