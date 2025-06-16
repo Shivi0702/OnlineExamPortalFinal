@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\BestScoreExamDto.cs" />
+    <Compile Remove="DTOs\ExamRankingDto.cs" />
+    <Compile Remove="DTOs\LastAttemptDto.cs" />
+    <Compile Remove="DTOs\UserExamAttemptDto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
