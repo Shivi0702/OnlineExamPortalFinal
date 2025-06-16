@@ -56,6 +56,9 @@ namespace OnlineExamPortalFinal.Controllers
                 return NotFound("Exam not found.");
 
             int correctCount = 0;
+            // 🟡 New list to collect per-question feedback
+            var questionFeedback = new List<QuestionFeedbackDto>();
+
             foreach (var answer in dto.Answers)
             {
                 var question = _context.Questions.FirstOrDefault(q => q.QuestionId == answer.QuestionId);
@@ -75,8 +78,15 @@ namespace OnlineExamPortalFinal.Controllers
                 };
 
                 _context.Responses.Add(response);
+                questionFeedback.Add(new QuestionFeedbackDto
+                {
+                    QuestionText = question.Text,
+                    SelectedAnswer = answer.Answer,
+                    CorrectAnswer = question.CorrectAnswer
+                });
             }
 
+            // 🟢 Add question feedback to return in result            
             var report = new Report
             {
                 ExamId = dto.ExamId,
@@ -88,11 +98,13 @@ namespace OnlineExamPortalFinal.Controllers
             _context.Reports.Add(report);
             _context.SaveChanges();
 
+            // 🟢 Return enhanced result DTO with per-question feedback
             return Ok(new ExamResultDto
             {
                 TotalMarks = exam.TotalMarks,
                 MarksObtained = correctCount,
-                ResultStatus = correctCount >= exam.TotalMarks / 2 ? "Pass" : "Fail"
+                ResultStatus = correctCount >= exam.TotalMarks / 2 ? "Pass" : "Fail",
+                Questions = questionFeedback
             });
         }
     }

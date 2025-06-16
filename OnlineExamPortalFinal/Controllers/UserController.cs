@@ -124,5 +124,36 @@ namespace OnlineExamPortal.Controllers
 
             return Ok("Password changed successfully.");
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("all-users")]
+        public IActionResult GetAllUsers()
+
+        {
+            var users = _context.Users.Select(u => new
+            {
+                u.UserId,
+                u.Name,
+                u.Email,
+                u.Role,
+                u.ProfileImageUrl
+            }).ToList();
+            return Ok(users);
+
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            return NotFound("User not found.");
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "User deleted successfully." });
+        }
+
     }
 }

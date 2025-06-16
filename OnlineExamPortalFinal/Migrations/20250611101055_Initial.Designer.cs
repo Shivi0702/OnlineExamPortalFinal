@@ -11,8 +11,8 @@ using OnlineExamPortalFinal.Data;
 namespace OnlineExamPortalFinal.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250608182735_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250611101055_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

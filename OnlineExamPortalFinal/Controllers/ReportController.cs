@@ -80,5 +80,34 @@ namespace OnlineExamPortal.Controllers
 
             return Ok(reports);
         }
+
+        [HttpGet("category/{categoryId}/exam/{examId}/results")]
+        public async Task<ActionResult<IEnumerable<StudentExamResultDto>>> GetStudentExamResults(int categoryId, int examId)
+        {
+            var reports = await _context.Reports
+                .Include(r => r.User)
+                .Include(r => r.Exam)
+                .Where(r => r.ExamId == examId && r.Exam.CategoryId == categoryId)
+                .ToListAsync();
+
+            var grouped = reports
+                .GroupBy(r => r.UserId)
+                .Select((g, index) =>
+                {
+                    var latestReport = g.OrderByDescending(r => r.ReportId).First();
+                    var status = latestReport.TotalMarks >= (latestReport.Exam.TotalMarks / 2) ? "Pass" : "Fail";
+
+                    return new StudentExamResultDto
+                    {
+                        SrNo = index + 1,
+                        StudentName = latestReport.User.Name,
+                        LatestScore = latestReport.TotalMarks,
+                        Status = status
+                    };
+                })
+                .ToList();
+
+            return Ok(grouped);
+        }
     }
 }

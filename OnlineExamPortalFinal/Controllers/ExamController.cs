@@ -128,6 +128,21 @@ namespace OnlineExamPortal.Controllers
             return Ok(dto);
         }
 
+        [HttpGet("by-category/{categoryId}")]
+        [Authorize(Roles = "Teacher,Admin")]
+        public IActionResult GetExamsByCategory(int categoryId)
+        {
+            var exams = _context.Exams
+                .Where(e => e.CategoryId == categoryId)
+                .Select(e => new { 
+                    ExamId = e.ExamId, 
+                    Title = e.Title }).ToList();
+
+            return Ok(exams);
+
+        }
+
+
         [HttpPut("{id}")]
         [Authorize(Roles = "Teacher")]
         public IActionResult UpdateExam(int id, CreateExamDto dto)
