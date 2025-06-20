@@ -8,10 +8,7 @@
         public int QuestionId { get; set; }
         public string Answer { get; set; } = string.Empty;
         public int MarksObtained { get; set; }
-        public bool IsPassed { get; set; }
-
-        // Add this! Set this in your submission logic.
-        public DateTime Timestamp { get; set; }
+    
 
         public Exam Exam { get; set; } = null!;
         public User User { get; set; } = null!;

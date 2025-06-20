@@ -97,7 +97,8 @@ namespace OnlineExamPortalFinal.Migrations
                     ExamId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TotalMarks = table.Column<int>(type: "int", nullable: false),
-                    PerformanceMetrics = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PerformanceMetrics = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Percentage = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -34,7 +34,7 @@ namespace OnlineExamPortal.Controllers
                     ExamTitle = r.Exam.Title,
                     TotalMarks = r.TotalMarks,
                     PerformanceMetrics = r.PerformanceMetrics,
-                    IsPassed = r.IsPassed // <-- Make sure this is mapped!
+                    //IsPassed = r.IsPassed // <-- Make sure this is mapped!
                 })
                 .ToList();
 
@@ -91,24 +91,23 @@ namespace OnlineExamPortal.Controllers
                 .Where(r => r.ExamId == examId && r.Exam.CategoryId == categoryId)
                 .ToListAsync();
 
-            var grouped = reports
-                .GroupBy(r => r.UserId)
-                .Select((g, index) =>
+            var results = reports
+                 .Select((r, index) =>
                 {
-                    var latestReport = g.OrderByDescending(r => r.ReportId).First();
-                    var status = latestReport.TotalMarks >= (latestReport.Exam.TotalMarks / 2) ? "Pass" : "Fail";
+                    var percentage = r.TotalMarks>0 / r.Exam.TotalMarks ? Math.Round((double)r.TotalMarks / r.Exam.TotalMarks * 100, 2) : 0;
+                    var status = percentage>=50 ? "Pass" : "Fail";
 
                     return new StudentExamResultDto
                     {
                         SrNo = index + 1,
-                        StudentName = latestReport.User.Name,
-                        LatestScore = latestReport.TotalMarks,
+                        StudentName = r.User.Name,
+                        PerformanceMetrics = r.PerformanceMetrics,
                         Status = status
                     };
                 })
                 .ToList();
 
-            return Ok(grouped);
+            return Ok(results);
         }
     }
 }

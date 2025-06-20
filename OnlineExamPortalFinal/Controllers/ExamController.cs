@@ -61,7 +61,7 @@ namespace OnlineExamPortal.Controllers
                 Duration = dto.Duration,
                 TotalMarks = dto.TotalMarks,
                 CategoryId = categoryIdToUse,
-                IsActive = dto.IsActive // <-- Added
+                //IsActive = dto.IsActive // <-- Added
             };
 
             _context.Exams.Add(exam);
@@ -86,7 +86,7 @@ namespace OnlineExamPortal.Controllers
                             Description = e.Description,
                             Duration = e.Duration,
                             TotalMarks = e.TotalMarks,
-                            IsActive = e.IsActive // <-- Added
+                            //IsActive = e.IsActive // <-- Added
                         }).ToList()
                 }).Where(c => c.Exams.Any())
                 .ToList();
@@ -105,7 +105,6 @@ namespace OnlineExamPortal.Controllers
                 Description = e.Description,
                 Duration = e.Duration,
                 TotalMarks = e.TotalMarks,
-                IsActive = e.IsActive // <-- Added
             }).ToList();
 
             return Ok(exams);
@@ -126,7 +125,6 @@ namespace OnlineExamPortal.Controllers
                 Description = exam.Description,
                 Duration = exam.Duration,
                 TotalMarks = exam.TotalMarks,
-                IsActive = exam.IsActive // <-- Added
             };
 
             return Ok(dto);
@@ -159,7 +157,6 @@ namespace OnlineExamPortal.Controllers
             exam.Description = dto.Description;
             exam.Duration = dto.Duration;
             exam.TotalMarks = dto.TotalMarks;
-            exam.IsActive = dto.IsActive; // <-- Added
 
             _context.SaveChanges();
             return Ok("Exam updated successfully.");
