@@ -104,7 +104,8 @@ namespace OnlineExamPortalFinal.Controllers
                 ExamId = dto.ExamId,
                 UserId = userId,
                 TotalMarks = exam.TotalMarks,
-                PerformanceMetrics = $"{correctCount}/{exam.TotalMarks}"
+                PerformanceMetrics = $"{correctCount}/{exam.TotalMarks}",
+                Percentage=((double)correctCount/exam.TotalMarks)*100
             };
 
             _context.Reports.Add(report);

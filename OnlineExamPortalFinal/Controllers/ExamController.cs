@@ -61,7 +61,6 @@ namespace OnlineExamPortal.Controllers
                 Duration = dto.Duration,
                 TotalMarks = dto.TotalMarks,
                 CategoryId = categoryIdToUse,
-                //IsActive = dto.IsActive // <-- Added
             };
 
             _context.Exams.Add(exam);
@@ -86,7 +85,6 @@ namespace OnlineExamPortal.Controllers
                             Description = e.Description,
                             Duration = e.Duration,
                             TotalMarks = e.TotalMarks,
-                            //IsActive = e.IsActive // <-- Added
                         }).ToList()
                 }).Where(c => c.Exams.Any())
                 .ToList();
@@ -98,14 +96,18 @@ namespace OnlineExamPortal.Controllers
         [AllowAnonymous]
         public IActionResult GetAllExams()
         {
-            var exams = _context.Exams.Select(e => new ExamDetailDto
-            {
-                ExamId = e.ExamId,
-                Title = e.Title,
-                Description = e.Description,
-                Duration = e.Duration,
-                TotalMarks = e.TotalMarks,
-            }).ToList();
+            var exams = _context.Exams
+                .Include(e => e.Category)
+                .Select(e => new
+                {
+                    e.ExamId,
+                    e.Title,
+                    e.Description,
+                    e.Duration,
+                    e.TotalMarks,
+                    CategoryName = e.Category != null ? e.Category.Name : "Uncategorized"
+                })
+                .ToList();
 
             return Ok(exams);
         }

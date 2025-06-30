@@ -25,7 +25,7 @@ namespace OnlineExamPortalFinal.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Configure Response relationships to avoid multiple cascade paths
+            //cascade paths
             modelBuilder.Entity<Response>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Responses)

@@ -23,11 +23,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     public IActionResult Register(RegisterUserDto dto)
-    {
-        if (dto.Role != "Student")
-        {
-            return Forbid("Only students can register!!");
-        }
+    {        
         var restrictedDomains = new[] { "@examportal.com", "@teacherportal.com" };
         if (restrictedDomains.Any(domain => dto.Email.EndsWith(domain, StringComparison.OrdinalIgnoreCase)))
         {

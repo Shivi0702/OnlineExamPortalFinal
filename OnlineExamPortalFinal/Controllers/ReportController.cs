@@ -32,9 +32,8 @@ namespace OnlineExamPortal.Controllers
                     ReportId = r.ReportId,
                     ExamId = r.ExamId,
                     ExamTitle = r.Exam.Title,
-                    TotalMarks = r.TotalMarks,
+                    Percentage = r.Percentage,
                     PerformanceMetrics = r.PerformanceMetrics,
-                    //IsPassed = r.IsPassed // <-- Make sure this is mapped!
                 })
                 .ToList();
 
@@ -92,19 +91,14 @@ namespace OnlineExamPortal.Controllers
                 .ToListAsync();
 
             var results = reports
-                 .Select((r, index) =>
-                {
-                    var percentage = r.TotalMarks>0 / r.Exam.TotalMarks ? Math.Round((double)r.TotalMarks / r.Exam.TotalMarks * 100, 2) : 0;
-                    var status = percentage>=50 ? "Pass" : "Fail";
-
-                    return new StudentExamResultDto
-                    {
-                        SrNo = index + 1,
-                        StudentName = r.User.Name,
-                        PerformanceMetrics = r.PerformanceMetrics,
-                        Status = status
-                    };
-                })
+                 .Select((r, index) => new StudentExamResultDto
+                     {
+                         SrNo = index + 1,
+                         StudentName = r.User.Name,
+                         PerformanceMetrics = r.PerformanceMetrics,
+                         Status = r.Percentage>=50 ? "Pass" : "Fail"
+                    
+                 })
                 .ToList();
 
             return Ok(results);

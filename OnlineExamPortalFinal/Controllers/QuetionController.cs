@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineExamPortalFinal.Data;
 using OnlineExamPortalFinal.DTOs;
@@ -32,6 +32,7 @@ namespace OnlineExamPortal.Controllers
                 Option3 = dto.Option3,
                 Option4 = dto.Option4,
                 CorrectAnswer = dto.CorrectAnswer
+                
             };
 
             _context.Questions.Add(question);

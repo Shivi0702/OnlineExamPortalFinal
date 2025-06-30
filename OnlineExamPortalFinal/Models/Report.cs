@@ -7,7 +7,7 @@
         public int UserId { get; set; }
         public int TotalMarks { get; set; }
         public string PerformanceMetrics { get; set; } = string.Empty;
-
+        public double Percentage { get; set; }
 
         // Navigation
         public User User { get; set; } = null!;

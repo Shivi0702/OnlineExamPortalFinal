@@ -13,17 +13,21 @@ namespace OnlineExamPortalFinal.Controllers
     public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(ApplicationDbContext context)
+        public UserController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet("dashboard-metrics")]
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetDashboardMetrics()
         {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type.Contains("nameidentifier"))?.Value; if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId)) return Unauthorized();
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type.Contains("nameidentifier"))?.Value; 
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId)) 
+                return Unauthorized();
 
             var allExams = await _context.Exams.ToListAsync();
 
@@ -47,7 +51,7 @@ namespace OnlineExamPortalFinal.Controllers
                 Score = int.TryParse(r.PerformanceMetrics.Split('/')[0], out int score) ? score : 0,
                 TotalMarks = r.TotalMarks,
                 Percentage = r.TotalMarks > 0 ? Math.Round((double)(int.TryParse(r.PerformanceMetrics.Split('/')[0], out int s) ? s : 0) / r.TotalMarks * 100, 2) : 0,
-                Passed = r.PerformanceMetrics.StartsWith("0/") ? false : (r.TotalMarks > 0 ? ((double)(int.TryParse(r.PerformanceMetrics.Split('/')[0], out int sc) ? sc : 0) / r.TotalMarks) * 100 >= 40 : false)
+                Passed = r.PerformanceMetrics.StartsWith("0/") ? false : (r.TotalMarks > 0 ? ((double)(int.TryParse(r.PerformanceMetrics.Split('/')[0], out int sc) ? sc : 0) / r.TotalMarks) * 100 >= 50 : false)
             }).ToList();
 
             var uniqueAttemptedExamIds = attemptsList.Select(a => a.ExamId).Distinct().ToList();
@@ -175,14 +179,82 @@ namespace OnlineExamPortalFinal.Controllers
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
-
         {
-            var user = await _context.Users.FindAsync(id);
+            try
+            {
+                var responses = _context.Responses.Where(r => r.UserId == id);
+                _context.Responses.RemoveRange(responses);
+                await _context.SaveChangesAsync();
+
+                // Remove user
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles = "Student,Teacher,Admin")]
+        [HttpPost("upload-photo")]
+        public async Task<IActionResult> UploadPhoto(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = await _context.Users.FindAsync(userId);
+
             if (user == null)
-            return NotFound("User not found.");
-            _context.Users.Remove(user);
+                return NotFound("User not found.");
+
+            var uploadsDir = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsDir))
+                Directory.CreateDirectory(uploadsDir);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            user.ProfileImageUrl = $"/uploads/{fileName}";
             await _context.SaveChangesAsync();
-            return Ok(new { message = "User deleted successfully." });
+
+            return Ok(new { message = "Photo uploaded successfully", url = user.ProfileImageUrl });
+        }
+
+     
+        [Authorize(Roles = "Student,Teacher,Admin")]
+        [HttpPost("change-password")]
+        public IActionResult ChangePassword(ChangePasswordDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+
+            if (user == null)
+                return NotFound("User not found.");
+
+            // Use BCrypt to verify current password
+            if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+                return BadRequest("Current password is incorrect.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            _context.SaveChanges();
+
+            return Ok("Password changed successfully.");
         }
 
     }
